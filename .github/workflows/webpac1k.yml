@@ -15,35 +15,29 @@ jobs:
         node-version: [12.x]
     
     steps:
-    - uses: actions/checkout@v2
-      with:
-        path: main
     - name: Checkout tools repo
       uses: actions/checkout@v3
       with: 
           repository: zanllp/zanllp.github.io
-          path: build
+          path: ../build
+    - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
     - uses: c-hive/gha-yarn-cache@v1
-      with:
-        path: ${{github.workspace}}/main
     - name: download dependencies
-      working-directory: ${{github.workspace}}/main
       run: yarn
     - name:  build
-      working-directory: ${{github.workspace}}/main
       run: yarn build 
     - name: init git
-      working-directory: ${{github.workspace}}/main/dist
+      working-directory: ${{github.workspace}}/dist
       run: cp -R . ../../build
     - name: Checkout tools repo
       uses: actions/checkout@v3
       with: 
           repository: zanllp/zanllp.github.io
-          path: build
+          path: ../build
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
       with:
