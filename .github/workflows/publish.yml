@@ -1,4 +1,4 @@
-name: NodeJS with Webpack
+name: Publish
 
 on:
   push:
@@ -13,12 +13,7 @@ jobs:
         node-version: [12.x]
     
     steps:
-    - name: clean
-      working-directory: ${{github.workspace}}
-      run: |
-        pwd
-        rm -rf build main
-    - name: Checkout tools repo
+    - name: github page repo
       uses: actions/checkout@v3
       with: 
           repository: zanllp/zanllp.github.io
@@ -44,9 +39,10 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
       with:
-          commit-message: update authors
-          title: Update AUTHORS
-          body: Credit new contributors by updating AUTHORS
-          branch: update-authors
+          commit-message: Update Released files
+          title: Update Released files
+          branch: update-released-filed
+          delete-branch: true
+          body: Triggered by [${{ github.sha }}](https://github.com/zanllp/extendable-viewer/commit/${{ github.sha }})
           path: ${{github.workspace}}/build
           token: ${{ secrets.PAT }}
