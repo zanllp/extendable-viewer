@@ -15,6 +15,11 @@ jobs:
         node-version: [12.x]
     
     steps:
+    - name: clean
+      working-directory: ${{github.workspace}}
+      run: |
+        pwd
+        rm -rf . 
     - name: Checkout tools repo
       uses: actions/checkout@v3
       with: 
