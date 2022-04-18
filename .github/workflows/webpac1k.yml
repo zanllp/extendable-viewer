@@ -27,26 +27,18 @@ jobs:
           path: build
     - uses: actions/checkout@v2
       with: 
-          repository: zanllp/zanllp.github.io
           path: main
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
     - name: download dependencies
-      working-directory: ${{github.workspace}}/main/main
+      working-directory: ${{github.workspace}}/main
       run: |
-        pwd
-        ls -l -r
-        cd ../
-        ls -l
-        cd main
-        ls -l
         npm i
     - name:  build
       working-directory: ${{github.workspace}}/main
       run: |
-        ls -l
         npm run build 
     - name: copy released file
       working-directory: ${{github.workspace}}/main/dist
