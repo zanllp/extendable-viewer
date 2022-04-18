@@ -43,11 +43,6 @@ jobs:
     - name: copy released file
       working-directory: ${{github.workspace}}/main/dist
       run: cp -R . ../../build
-    - name: Checkout tools repo
-      uses: actions/checkout@v3
-      with: 
-          repository: zanllp/zanllp.github.io
-          path: build
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
       with:
@@ -55,4 +50,4 @@ jobs:
           title: Update AUTHORS
           body: Credit new contributors by updating AUTHORS
           branch: update-authors
-          path: dist
+          path: ${{github.workspace}}/build
