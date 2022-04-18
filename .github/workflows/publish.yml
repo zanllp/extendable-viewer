@@ -41,7 +41,7 @@ jobs:
       with:
           commit-message: Update released files
           title: Update released files
-          branch: update-released-filed
+          branch: update-released-files
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           delete-branch: true
           body: Triggered by [${{ github.sha }}](https://github.com/zanllp/extendable-viewer/commit/${{ github.sha }})
