@@ -34,7 +34,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: download dependencies
-      working-directory: ${{github.workspace}}/main
+      working-directory: ${{github.workspace}}/main/main
       run: |
         pwd
         ls -l -r
