@@ -30,10 +30,18 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: download dependencies
       working-directory: ${{github.workspace}}/main
-      run: npm i
+      run: |
+        pwd
+        cd ../
+        ls -l
+        cd main
+        ls -l
+        npm i
     - name:  build
       working-directory: ${{github.workspace}}/main
-      run: npm run build 
+      run: |
+        ls -l
+        npm run build 
     - name: copy released file
       working-directory: ${{github.workspace}}/main/dist
       run: cp -R . ../../build
