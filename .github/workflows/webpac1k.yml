@@ -37,6 +37,7 @@ jobs:
       working-directory: ${{github.workspace}}/main
       run: |
         pwd
+        ls -l -r
         cd ../
         ls -l
         cd main
