@@ -28,6 +28,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - uses: c-hive/gha-yarn-cache@v1
+      with:
+        path: ${{github.workspace}}/main
     - name: download dependencies
       working-directory: ${{github.workspace}}/main
       run: yarn
