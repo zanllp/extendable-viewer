@@ -15,8 +15,6 @@ jobs:
         node-version: [12.x]
     
     steps:
-    - name: Clean up	
-      run: rm -rf "${{github.workspace}}" 
     - uses: actions/checkout@v2
       with:
         path: main
