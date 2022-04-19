@@ -31,16 +31,16 @@ export const App = defineComponent({
       type Target = 'pbr' | 'ball' | 'girl'
       const currTarget: { v: Target } = { v: 'pbr' }
       const createScene = async (t: Target) => {
-        let last_scene: Scene
+        let scene: Scene
         switch (t) {
           case 'ball':
-            last_scene = ballTop(engine, canvas)
+            scene = ballTop(engine, canvas)
             break
           case 'girl':
-            last_scene = await VrmPlayground.CreateScene(engine, canvas)
+            scene = await VrmPlayground.CreateScene(engine, canvas)
             break
           default:
-            last_scene = GltfPlayground.CreateScene(engine, canvas)
+            scene = GltfPlayground.CreateScene(engine, canvas)
         }
         const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI('UI')
 
@@ -66,7 +66,7 @@ export const App = defineComponent({
         addRadio('ball')
         addRadio('girl')
         addRadio('pbr')
-        return last_scene
+        return scene
       }
       const scenes = {
         pbr: await createScene('pbr'),
