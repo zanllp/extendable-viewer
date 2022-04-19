@@ -9,17 +9,22 @@ import {
   HemisphericLight,
   Vector3,
   SceneLoader,
-  ArcFollowCamera
+  ArcFollowCamera,
+  CubeTexture
 } from 'babylonjs'
 import { GLTFFileLoader } from 'babylonjs-loaders'
-import gltfa from '../asset/box/Box.gltf'
+// import gltfa from '../asset/box/Box.gltf'
 import gltfb from '../asset/DamagedHelmet/DamagedHelmet.gltf'
+import hdrEnv from '../asset/texture/environment.dds'
+
 SceneLoader.RegisterPlugin(new GLTFFileLoader())
-console.log(gltfa)
+
 class Playground {
   public static CreateScene (engine: Engine, canvas: HTMLCanvasElement): Scene {
     const scene = new Scene(engine)
-
+    console.log(hdrEnv)
+    const hdrTexture = CubeTexture.CreateFromPrefilteredData(hdrEnv, scene)
+    const currentSkybox = scene.createDefaultSkybox(hdrTexture, true)
     // This creates and positions a free camera (non-mesh)
     const camera = new FreeCamera('camera1', new Vector3(0, 0, -0), scene)
 
@@ -41,7 +46,7 @@ class Playground {
       // Rotate the camera by 180 degrees to the front of the asset.
       // scene.activeCamera!.alpha += Math.PI
       const camera = scene.activeCamera as ArcFollowCamera
-      camera.alpha += 4 * Math.PI / 5
+      camera.alpha += (4 * Math.PI) / 5
       camera.beta -= Math.PI / 16
     })
     return scene
