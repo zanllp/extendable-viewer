@@ -17,7 +17,7 @@ const config = {
         ]
       },
       {
-        test: /\.(bin|jpe?g|png|dds)$/,
+        test: /\.(bin|jpe?g|png|dds|vrm)$/,
         loader: 'file-loader',
         options: { esModule: false }
       }

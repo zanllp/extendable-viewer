@@ -11,8 +11,8 @@ import {
   Mesh,
   VertexBuffer,
   Matrix
-} from 'babylonjs'
-import { CustomMaterial } from 'babylonjs-materials'
+} from '@babylonjs/core'
+import { CustomMaterial } from '@babylonjs/materials'
 
 export const ballTop = (engine: Engine, canvas: HTMLCanvasElement): Scene => {
   // This creates a basic Babylon Scene object (non-mesh)

@@ -2,77 +2,87 @@ import { useWindowSize } from '@vueuse/core'
 import { defineComponent, onMounted, ref } from 'vue'
 import './registerServiceWorker'
 import { ok } from 'assert'
+import { Engine, Mesh, Scene } from '@babylonjs/core'
 import {
-  Scene,
-  Engine,
-  FreeCamera,
-  HemisphericLight,
-  Vector3,
-  SceneLoader,
-  ArcFollowCamera,
-  CubeTexture
-} from 'babylonjs'
-import { GLTFFileLoader } from 'babylonjs-loaders'
-// import gltfa from '../asset/box/Box.gltf'
-import gltfb from '../asset/DamagedHelmet/DamagedHelmet.gltf'
-import hdrEnv from '../asset/texture/environment.dds'
+  AdvancedDynamicTexture,
+  Button,
+  Control,
+  RadioButton,
+  Rectangle,
+  StackPanel,
+  TextBlock
+} from '@babylonjs/gui'
+import 'babylon-vrm-loader'
+import { GltfPlayground } from './gltf'
+import { ballTop } from './ballTop'
+import { VrmPlayground } from './vrm'
 
-SceneLoader.RegisterPlugin(new GLTFFileLoader())
-
-class Playground {
-  public static CreateScene (engine: Engine, canvas: HTMLCanvasElement): Scene {
-    const scene = new Scene(engine)
-    console.log(hdrEnv)
-    const hdrTexture = CubeTexture.CreateFromPrefilteredData(hdrEnv, scene)
-    const currentSkybox = scene.createDefaultSkybox(hdrTexture, true)
-    // This creates and positions a free camera (non-mesh)
-    const camera = new FreeCamera('camera1', new Vector3(0, 0, -0), scene)
-
-    // This targets the camera to scene origin
-    camera.setTarget(Vector3.Zero())
-
-    // This attaches the camera to the canvas
-    camera.attachControl(canvas, true)
-
-    // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-    const light = new HemisphericLight('light1', new Vector3(0, 1, 0), scene)
-
-    // Default intensity is 1. Let's dim the light a small amount
-    // light.intensity = 0.7
-    SceneLoader.Append('', (gltfb as string).slice(1), scene, function (scene) {
-      // Create a default arc rotate camera and light.
-      scene.createDefaultCameraOrLight(true, true, true)
-      // The default camera looks at the back of the asset.
-      // Rotate the camera by 180 degrees to the front of the asset.
-      // scene.activeCamera!.alpha += Math.PI
-      const camera = scene.activeCamera as ArcFollowCamera
-      camera.alpha += (4 * Math.PI) / 5
-      camera.beta -= Math.PI / 16
-    })
-    return scene
-  }
-}
 export const App = defineComponent({
   setup () {
     const ele = ref<HTMLCanvasElement>()
     const { width, height } = useWindowSize()
-    onMounted(() => {
+    onMounted(async () => {
       const canvas = ele.value
       ok(canvas)
       const engine = new Engine(canvas, true, {
         preserveDrawingBuffer: true,
         stencil: true
       })
-      const scene = Playground.CreateScene(engine, canvas)
+      type Target = 'pbr' | 'ball' | 'girl'
+      const currTarget: { v: Target } = { v: 'pbr' }
+      const createScene = async (t: Target) => {
+        let last_scene: Scene
+        switch (t) {
+          case 'ball':
+            last_scene = ballTop(engine, canvas)
+            break
+          case 'girl':
+            last_scene = await VrmPlayground.CreateScene(engine, canvas)
+            break
+          default:
+            last_scene = GltfPlayground.CreateScene(engine, canvas)
+        }
+        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI('UI')
+
+        const panel = new StackPanel()
+        advancedTexture.addControl(panel)
+
+        panel.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP
+        panel.top = '50px'
+
+        const addRadio = (text: 'pbr' | 'ball' | 'girl') => {
+          const button = Button.CreateSimpleButton('but' + text, text)
+          button.width = 0.2
+          button.height = '40px'
+          button.color = 'white'
+          button.background = 'green'
+          panel.addControl(button)
+
+          button.onPointerClickObservable.add(function (state) {
+            currTarget.v = text
+          })
+        }
+
+        addRadio('ball')
+        addRadio('girl')
+        addRadio('pbr')
+        return last_scene
+      }
+      const scenes = {
+        pbr: await createScene('pbr'),
+        girl: await createScene('girl'),
+        ball: await createScene('ball')
+      }
+
+      const getCurrScene = () => scenes[currTarget.v]
+
       engine.runRenderLoop(function () {
-        scene.render()
+        getCurrScene().render()
       })
-      // the canvas/window resize event handler
       window.addEventListener('resize', function () {
         engine.resize()
       })
     })
-
     return () => (
       <canvas ref={ele} height={height.value} width={width.value}></canvas>
     )

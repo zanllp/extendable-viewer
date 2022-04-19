@@ -12,3 +12,7 @@ declare module '*.dds' {
     const component: string
     export default component
 }
+declare module '*.vrm' {
+    const component: string
+    export default component
+}
