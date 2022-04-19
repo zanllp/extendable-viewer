@@ -35,12 +35,6 @@ jobs:
     - name: copy released file
       working-directory: ${{github.workspace}}/main/dist
       run: cp -R . ../../build
-    - name: close previous pull request
-      uses: peter-evans/close-pull@v2
-      with:
-          comment: Auto-closing pull request
-          token: ${{ secrets.PAT }}
-          repository: zanllp/zanllp.github.io
     - name: create pull request
       uses: peter-evans/create-pull-request@v4
       with:
