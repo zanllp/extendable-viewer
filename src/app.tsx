@@ -11,8 +11,8 @@ import {
   SceneLoader
 } from 'babylonjs'
 import { GLTFFileLoader } from 'babylonjs-loaders'
-import gltfa from './box/Box.gltf'
-import gltfb from './DamagedHelmet/DamagedHelmet.gltf'
+import gltfa from '../asset/box/Box.gltf'
+import gltfb from '../asset/DamagedHelmet/DamagedHelmet.gltf'
 SceneLoader.RegisterPlugin(new GLTFFileLoader())
 console.log(gltfa)
 class Playground {
