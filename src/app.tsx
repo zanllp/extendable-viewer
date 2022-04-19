@@ -8,7 +8,8 @@ import {
   FreeCamera,
   HemisphericLight,
   Vector3,
-  SceneLoader
+  SceneLoader,
+  ArcFollowCamera
 } from 'babylonjs'
 import { GLTFFileLoader } from 'babylonjs-loaders'
 import gltfa from '../asset/box/Box.gltf'
@@ -20,7 +21,7 @@ class Playground {
     const scene = new Scene(engine)
 
     // This creates and positions a free camera (non-mesh)
-    const camera = new FreeCamera('camera1', new Vector3(0, 5, -10), scene)
+    const camera = new FreeCamera('camera1', new Vector3(0, 0, -0), scene)
 
     // This targets the camera to scene origin
     camera.setTarget(Vector3.Zero())
@@ -32,14 +33,16 @@ class Playground {
     const light = new HemisphericLight('light1', new Vector3(0, 1, 0), scene)
 
     // Default intensity is 1. Let's dim the light a small amount
-    light.intensity = 0.7
+    // light.intensity = 0.7
     SceneLoader.Append('', (gltfb as string).slice(1), scene, function (scene) {
       // Create a default arc rotate camera and light.
       scene.createDefaultCameraOrLight(true, true, true)
-
       // The default camera looks at the back of the asset.
       // Rotate the camera by 180 degrees to the front of the asset.
-      // scene.activeCamera!.alpha += Math.PI;
+      // scene.activeCamera!.alpha += Math.PI
+      const camera = scene.activeCamera as ArcFollowCamera
+      camera.alpha += 4 * Math.PI / 5
+      camera.beta -= Math.PI / 16
     })
     return scene
   }
