@@ -29,7 +29,7 @@ export const App = defineComponent({
         stencil: true
       })
       type Target = 'pbr' | 'ball' | 'girl'
-      const currTarget: { v: Target } = { v: 'pbr' }
+      const currTarget: { v: Target } = { v: 'girl' }
       const createScene = async (t: Target) => {
         let scene: Scene
         switch (t) {

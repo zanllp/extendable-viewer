@@ -6,10 +6,14 @@ import {
   Vector3,
   SceneLoader,
   ArcFollowCamera,
-  CubeTexture
+  CubeTexture,
+  Animation,
+  MeshBuilder,
+  MorphTargetManager
 } from '@babylonjs/core'
 // import gltfa from '../asset/box/Box.gltf'
 import gltfb from '../asset/DamagedHelmet/DamagedHelmet.gltf'
+import green from '../asset/girl2.glb'
 import hdrEnv from '../asset/texture/environment.dds'
 
 export class GltfPlayground {
@@ -32,7 +36,7 @@ export class GltfPlayground {
 
     // Default intensity is 1. Let's dim the light a small amount
     // light.intensity = 0.7
-    SceneLoader.Append('', (gltfb as string).slice(1), scene, function (scene) {
+    SceneLoader.Append('', (green as string).slice(1), scene, function (scene) {
       // Create a default arc rotate camera and light.
       scene.createDefaultCameraOrLight(true, true, true)
       // The default camera looks at the back of the asset.

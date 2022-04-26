@@ -15,4 +15,7 @@ declare module '*.dds' {
 declare module '*.vrm' {
     const component: string
     export default component
+}declare module '*.glb' {
+    const component: string
+    export default component
 }
