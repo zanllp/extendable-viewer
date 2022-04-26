@@ -1,8 +1,6 @@
-import { useWindowSize } from '@vueuse/core'
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent } from 'vue'
 import './registerServiceWorker'
 import {
-    ACESFilmicToneMapping,
   AnimationClip,
   AnimationMixer,
   AnimationObjectGroup,
@@ -18,73 +16,66 @@ import {
   PerspectiveCamera,
   Quaternion,
   QuaternionKeyframeTrack,
-  Renderer,
   Scene,
-  sRGBEncoding,
   Vector3,
   WebGLRenderer
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { VRM, VRMSchema, VRMUtils } from '@pixiv/three-vrm'
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { Sky } from "three/examples/jsm/objects/Sky";
-import { GUI  } from 'dat.gui';
-import { ok } from 'assert'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Sky } from 'three/examples/jsm/objects/Sky'
+import { GUI } from 'dat.gui'
 import gltf from '../asset/vrm/girl.vrm'
 
-function initSky(scene: Scene, renderer: WebGLRenderer, camera: Camera) {
+function initSky (scene: Scene, renderer: WebGLRenderer, camera: Camera) {
+  // Add Sky
+  const sky = new Sky()
+  sky.scale.setScalar(450000)
+  scene.add(sky)
 
-    // Add Sky
-    const sky = new Sky();
-    sky.scale.setScalar( 450000 );
-    scene.add( sky );
+  const sun = new Vector3()
 
-    const sun = new Vector3();
+  /// GUI
 
-    /// GUI
+  const effectController = {
+    turbidity: 10,
+    rayleigh: 3,
+    mieCoefficient: 0.005,
+    mieDirectionalG: 0.7,
+    elevation: 2,
+    azimuth: 180,
+    exposure: renderer.toneMappingExposure
+  }
 
-    const effectController = {
-        turbidity: 10,
-        rayleigh: 3,
-        mieCoefficient: 0.005,
-        mieDirectionalG: 0.7,
-        elevation: 2,
-        azimuth: 180,
-        exposure: renderer.toneMappingExposure
-    };
+  function guiChanged () {
+    const uniforms = sky.material.uniforms
+    uniforms.turbidity.value = effectController.turbidity
+    uniforms.rayleigh.value = effectController.rayleigh
+    uniforms.mieCoefficient.value = effectController.mieCoefficient
+    uniforms.mieDirectionalG.value = effectController.mieDirectionalG
 
-    function guiChanged() {
+    const phi = MathUtils.degToRad(90 - effectController.elevation)
+    const theta = MathUtils.degToRad(effectController.azimuth)
 
-        const uniforms = sky.material.uniforms;
-        uniforms[ 'turbidity' ].value = effectController.turbidity;
-        uniforms[ 'rayleigh' ].value = effectController.rayleigh;
-        uniforms[ 'mieCoefficient' ].value = effectController.mieCoefficient;
-        uniforms[ 'mieDirectionalG' ].value = effectController.mieDirectionalG;
+    sun.setFromSphericalCoords(1, phi, theta)
 
-        const phi = MathUtils.degToRad( 90 - effectController.elevation );
-        const theta = MathUtils.degToRad( effectController.azimuth );
+    uniforms.sunPosition.value.copy(sun)
 
-        sun.setFromSphericalCoords( 1, phi, theta );
+    renderer.toneMappingExposure = effectController.exposure
+    renderer.render(scene, camera)
+  }
 
-        uniforms[ 'sunPosition' ].value.copy( sun );
+  const gui = new GUI()
 
-        renderer.toneMappingExposure = effectController.exposure;
-        renderer.render( scene, camera );
+  gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged)
+  gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged)
+  gui.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged)
+  gui.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(guiChanged)
+  gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged)
+  gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged)
+  gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged)
 
-    }
-
-    const gui = new GUI();
-
-    gui.add( effectController, 'turbidity', 0.0, 20.0, 0.1 ).onChange( guiChanged );
-    gui.add( effectController, 'rayleigh', 0.0, 4, 0.001 ).onChange( guiChanged );
-    gui.add( effectController, 'mieCoefficient', 0.0, 0.1, 0.001 ).onChange( guiChanged );
-    gui.add( effectController, 'mieDirectionalG', 0.0, 1, 0.001 ).onChange( guiChanged );
-    gui.add( effectController, 'elevation', 0, 90, 0.1 ).onChange( guiChanged );
-    gui.add( effectController, 'azimuth', - 180, 180, 0.1 ).onChange( guiChanged );
-    gui.add( effectController, 'exposure', 0, 1, 0.0001 ).onChange( guiChanged );
-
-    guiChanged();
-
+  guiChanged()
 }
 export const App = defineComponent({
   setup () {
@@ -100,8 +91,6 @@ export const App = defineComponent({
       0.1,
       20.0
     )
-
-    
 
     camera.position.set(0.0, 1.0, 5.0)
 
@@ -121,7 +110,7 @@ export const App = defineComponent({
 
     // const helper = new GridHelper( 10000, 2, 0xffffff, 0xffffff );
     // scene.add( helper );
-    initSky(scene, renderer, camera);
+    initSky(scene, renderer, camera)
     // gltf and vrm
     let currentVrm: { update: (arg0: number) => void } | undefined
     let currentMixer: AnimationMixer | undefined
