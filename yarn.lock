@@ -950,38 +950,6 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
-"@babylonjs/core@4", "@babylonjs/core@4.2.2":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@babylonjs/core/-/core-4.2.2.tgz#e37f95298700e1f2fc9a6403e297e112b2444d0b"
-  integrity sha512-gAgetSyoxFZ/xzMVVnGPKaP941NHA59Ho8GGKFW98OTEp8yZcnzJjNOD2zfF1eKmlvR/6WwSmcrKWTJtPF1pyA==
-  dependencies:
-    tslib ">=1.10.0"
-
-"@babylonjs/gui@4":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@babylonjs/gui/-/gui-4.2.2.tgz#55715a7f875611f874a7778eb8a59530004eb065"
-  integrity sha512-iFKnSb0m9Zz7oeD1LTZWE9Hxcp0QMytXZenLNgrbHOm8mo2V+Y6OiVEP9SpvZRqks6bTDTFrpfjMTy1DrZyTGQ==
-  dependencies:
-    "@babylonjs/core" "4.2.2"
-    tslib ">=1.10.0"
-
-"@babylonjs/loaders@4":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@babylonjs/loaders/-/loaders-4.2.2.tgz#b57d096a050af3aa34a8dfb9952de322c216125b"
-  integrity sha512-Qk8r4xp4eOznbX3AsNYv8HgwS+tzGu6TwSpDX4il3g0B+k1N5k6KE5ghrnwDytoxUDVjGZ/VKk2cQqiHsg/NLg==
-  dependencies:
-    "@babylonjs/core" "4.2.2"
-    babylonjs-gltf2interface "4.2.2"
-    tslib ">=1.10.0"
-
-"@babylonjs/materials@4":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@babylonjs/materials/-/materials-4.2.2.tgz#3ad9e5aea9a5883785edc0bea9a88cdf25b448ee"
-  integrity sha512-Y7umjVEYV5ZsLYVxgrkb5+4lPsz35acgOEqiZErFBdGXJw3AHJLJmalcmL5WXqUBR2SzyShFLCJOdbFQbkmaxg==
-  dependencies:
-    "@babylonjs/core" "4.2.2"
-    tslib ">=1.10.0"
-
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
   resolved "https://registry.npmmirror.com/@eslint/eslintrc/-/eslintrc-0.4.3.tgz#9e42981ef035beb3dd49add17acb96e8ff6f394c"
@@ -1073,6 +1041,11 @@
   dependencies:
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
+
+"@pixiv/three-vrm@^0.6.11":
+  version "0.6.11"
+  resolved "https://registry.yarnpkg.com/@pixiv/three-vrm/-/three-vrm-0.6.11.tgz#fc7e177ffc893e57ff40f7a1c1cd69dc3b5e58a2"
+  integrity sha512-86upLje9jwN2XxBNc8XYaX1r98mru/bAD3DaGRDN0Hwa+d9iSwI5jCbo8aEedGlGpdpPo1+vVWkMlfI7o35NSw==
 
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"
@@ -1192,6 +1165,11 @@
   integrity sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==
   dependencies:
     "@types/node" "*"
+
+"@types/dat.gui@^0.7.7":
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/@types/dat.gui/-/dat.gui-0.7.7.tgz#2125aedfaa190364c5a50b0447858a7e159aea2e"
+  integrity sha512-CxLCme0He5Jk3uQwfO/fGZMyNhb/ypANzqX0yU9lviBQMlen5SOvQTBQ/Cd9x5mFlUAK5Tk8RgvTyLj1nYkz+w==
 
 "@types/eslint-scope@^3.7.3":
   version "3.7.3"
@@ -1336,6 +1314,11 @@
   integrity sha512-f0KEEe05NvUnat+boPTZ0dgaLZ4SfSouXUgv5noUiefG2ajgKjmETo9ZJyuqsl7dfl2aHlLJUiki6B4ZYldiiw==
   dependencies:
     "@types/node" "*"
+
+"@types/three@^0.139.0":
+  version "0.139.0"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.139.0.tgz#69af1f0c52f8eea390f513e05478af1dd7f49e6f"
+  integrity sha512-4V/jZhyq7Mv05coUzxL3bz8AuBOSi/1F0RY7ujisHTV0Amy/fnYJ+s7TSJ1/hXjZukSkpuFRgV+wvWUEMbsMbQ==
 
 "@types/trusted-types@^2.0.2":
   version "2.0.2"
@@ -1860,15 +1843,6 @@
   dependencies:
     vue-demi "*"
 
-"@vxna/gltf-loader@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@vxna/gltf-loader/-/gltf-loader-2.0.1.tgz#34882a0fd7df04bbe746029acbcd43bef4e6dd8b"
-  integrity sha512-9JOerio+PP0n5UPU4cL2ZN6JjtEQnVdhgyUWDgX8mmEILji12O2y5r6YmPp6SeUe5exrI4hdDWe8KWiBfXjiYw==
-  dependencies:
-    common-tags "^1.8.0"
-    loader-utils "^1.2.3"
-    neo-async "^2.6.1"
-
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
   resolved "https://registry.npmmirror.com/@webassemblyjs/ast/-/ast-1.11.1.tgz#2bfd767eae1a6996f432ff7e8d7fc75679c0b6a7"
@@ -2281,23 +2255,6 @@ babel-plugin-polyfill-regenerator@^0.3.0:
   integrity sha512-Y2B06tvgHYt1x0yz17jGkGeeMr5FeKUu+ASJ+N6nB5lQ8Dapfg42i0OVrf8PNGJ3zKL4A23snMi1IRwrqqND7A==
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.3.1"
-
-babylon-mtoon-material@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/babylon-mtoon-material/-/babylon-mtoon-material-3.0.0.tgz#3289c8e041328630ae8f60173781bb32c4cd5e87"
-  integrity sha512-Ozt2w+s7fzsVY9+YzvV8WalTlsGZX1aCqVh1Vs5islQyUuZvLjXMCIY417vKHNlAe07dSfblNUknlDdNtN4w1w==
-
-babylon-vrm-loader@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/babylon-vrm-loader/-/babylon-vrm-loader-1.5.1.tgz#9955cdb84f0c52198679965a39d012e188608e7d"
-  integrity sha512-0e85mFEysYf+UTZMI6A6EqPHAu0hol0e9TAGDs1zhPrRtuhhZohzNgIlKIu27VQrI1U1yfOg3hJdAaOuM1yeMQ==
-  dependencies:
-    babylon-mtoon-material "^3.0.0"
-
-babylonjs-gltf2interface@4.2.2:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/babylonjs-gltf2interface/-/babylonjs-gltf2interface-4.2.2.tgz#365daf43110ec98b52379e6a9081e06b6835588b"
-  integrity sha512-LCQgW1lM+EpKK4yWMiPEgi6ONwJ7W4JrSu3t9JixNRgvnic72OnN2f0bt91rE30EJr1ZaokvkXD/aEiBp/Juyg==
 
 balanced-match@^1.0.0:
   version "1.0.2"
@@ -3090,6 +3047,11 @@ csstype@^2.6.8:
   version "2.6.20"
   resolved "https://registry.npmmirror.com/csstype/-/csstype-2.6.20.tgz#9229c65ea0b260cf4d3d997cb06288e36a8d6dda"
   integrity sha512-/WwNkdXfckNgw6S5R125rrW8ez139lBHWouiBvX8dfMFtcn6V81REDqnH7+CRpRipfYlyU1CmOnOxrmGcFOjeA==
+
+dat.gui@^0.7.9:
+  version "0.7.9"
+  resolved "https://registry.yarnpkg.com/dat.gui/-/dat.gui-0.7.9.tgz#860cab06053b028e327820eabdf25a13cf07b17e"
+  integrity sha512-sCNc1OHobc+Erc1HqiswYgHdVNpSJUlk/Hz8vzOCsER7rl+oF/4+v8GXFUyCgtXpoCX6+bnmg07DedLvBLwYKQ==
 
 debug@2.6.9, debug@^2.6.9:
   version "2.6.9"
@@ -4886,7 +4848,7 @@ loader-runner@^4.1.0, loader-runner@^4.2.0:
   resolved "https://registry.npmmirror.com/loader-runner/-/loader-runner-4.3.0.tgz#c1b4a163b99f614830353b16755e7149ac2314e1"
   integrity sha512-3R/1M+yS3j5ou80Me59j7F9IMs4PXs3VqRrm0TU3AbKPxlmpoY1TNscJV/oGJXo8qCatFGTfDbY6W6ipGOYXfg==
 
-loader-utils@^1.0.2, loader-utils@^1.1.0, loader-utils@^1.2.3:
+loader-utils@^1.0.2, loader-utils@^1.1.0:
   version "1.4.0"
   resolved "https://registry.npmmirror.com/loader-utils/-/loader-utils-1.4.0.tgz#c579b5e34cb34b1a74edc6c1fb36bfa371d5a613"
   integrity sha512-qH0WSMBtn/oHuwjy/NucEgbx5dbxxnxup9s4PVXJUDHZBQY+s0NWA9rJf53RBnQZxfch7euUui7hpoAPvALZdA==
@@ -5223,7 +5185,7 @@ negotiator@0.6.3:
   resolved "https://registry.npmmirror.com/negotiator/-/negotiator-0.6.3.tgz#58e323a72fedc0d6f9cd4d31fe49f51479590ccd"
   integrity sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==
 
-neo-async@^2.6.1, neo-async@^2.6.2:
+neo-async@^2.6.2:
   version "2.6.2"
   resolved "https://registry.npmmirror.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
@@ -6963,6 +6925,11 @@ thread-loader@^3.0.0:
     neo-async "^2.6.2"
     schema-utils "^3.0.0"
 
+three@^0.139.2:
+  version "0.139.2"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.139.2.tgz#b110799a15736df673b9293e31653a4ac73648dd"
+  integrity sha512-gV7q7QY8rogu7HLFZR9cWnOQAUedUhu2WXAnpr2kdXZP9YDKsG/0ychwQvWkZN5PlNw9mv5MoCTin6zNTXoONg==
+
 thunky@^1.0.2:
   version "1.1.0"
   resolved "https://registry.npmmirror.com/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
@@ -7029,15 +6996,15 @@ tsconfig-paths@^3.14.1:
     minimist "^1.2.6"
     strip-bom "^3.0.0"
 
-tslib@>=1.10.0, tslib@^2.0.3:
-  version "2.3.1"
-  resolved "https://registry.npmmirror.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
-  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
-
 tslib@^1.8.1:
   version "1.14.1"
   resolved "https://registry.npmmirror.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
+
+tslib@^2.0.3:
+  version "2.3.1"
+  resolved "https://registry.npmmirror.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
+  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tsutils@^3.21.0:
   version "3.21.0"

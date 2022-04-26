@@ -7,17 +7,7 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.gltf$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: { esModule: false }
-          },
-          '@vxna/gltf-loader'
-        ]
-      },
-      {
-        test: /\.(bin|jpe?g|png|dds|vrm|glb)$/,
+        test: /\.(bin|jpe?g|png|dds|vrm|glb|gltf)$/,
         loader: 'file-loader',
         options: { esModule: false }
       }
