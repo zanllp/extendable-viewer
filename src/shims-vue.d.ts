@@ -18,4 +18,10 @@ declare module '*.vrm' {
 }declare module '*.glb' {
     const component: string
     export default component
+}declare module '*.fbx' {
+    const component: string
+    export default component
+}declare module '*.json' {
+    const component: any
+    export default component
 }

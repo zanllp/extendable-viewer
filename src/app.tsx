@@ -21,11 +21,17 @@ import {
   WebGLRenderer
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { VRM, VRMSchema, VRMUtils } from '@pixiv/three-vrm'
+import { RawVector4, VRM, VRMPose, VRMSchema, VRMUtils } from '@pixiv/three-vrm'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Sky } from 'three/examples/jsm/objects/Sky'
 import { GUI } from 'dat.gui'
 import gltf from '../asset/vrm/girl.vrm'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import { mixamoClipToVRMClip } from './clip'
+import { VRMController } from './controller'
+import idoljson from '../asset/idol.json'
+import walkingfbx from '../asset/walking.fbx'
+
 
 function initSky (scene: Scene, renderer: WebGLRenderer, camera: Camera) {
   // Add Sky
@@ -69,8 +75,12 @@ function initSky (scene: Scene, renderer: WebGLRenderer, camera: Camera) {
 
   gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged)
   gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged)
-  gui.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged)
-  gui.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(guiChanged)
+  gui
+    .add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001)
+    .onChange(guiChanged)
+  gui
+    .add(effectController, 'mieDirectionalG', 0.0, 1, 0.001)
+    .onChange(guiChanged)
   gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged)
   gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged)
   gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged)
@@ -78,7 +88,7 @@ function initSky (scene: Scene, renderer: WebGLRenderer, camera: Camera) {
   guiChanged()
 }
 export const App = defineComponent({
-  setup () {
+  async setup () {
     const renderer = new WebGLRenderer()
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(window.devicePixelRatio)
@@ -92,12 +102,12 @@ export const App = defineComponent({
       20.0
     )
 
-    camera.position.set(0.0, 1.0, 5.0)
+    camera.position.set(0.0, 1.0, 4)
 
     // camera controls
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.screenSpacePanning = true
-    controls.target.set(0.0, 1.0, 0.0)
+    controls.target.set(0.0, 1, 0.0)
     controls.update()
 
     // scene
@@ -108,92 +118,45 @@ export const App = defineComponent({
     light.position.set(1.0, 1.0, 1.0).normalize()
     scene.add(light)
 
-    // const helper = new GridHelper( 10000, 2, 0xffffff, 0xffffff );
-    // scene.add( helper );
     initSky(scene, renderer, camera)
     // gltf and vrm
-    let currentVrm: { update: (arg0: number) => void } | undefined
+    let currentVrm: VRM
     let currentMixer: AnimationMixer | undefined
     const loader = new GLTFLoader()
     loader.crossOrigin = 'anonymous'
-    loader.load(
-      gltf,
+    const gltfmodel = await loader.loadAsync(gltf)
+    VRMUtils.removeUnnecessaryVertices(gltfmodel.scene)
+    VRMUtils.removeUnnecessaryJoints(gltfmodel.scene)
+    const vrm = await VRM.from(gltfmodel)
 
-      (gltf:any) => {
-        VRMUtils.removeUnnecessaryVertices(gltf.scene)
-        VRMUtils.removeUnnecessaryJoints(gltf.scene)
+    scene.add(vrm.scene)
+    vrm.scene.rotation.y += Math.PI
+    currentVrm = vrm
 
-        VRM.from(gltf).then(
-          (vrm: any) => {
-            scene.add(vrm.scene)
-            currentVrm = vrm
+    vrm.humanoid!.getBoneNode(VRMSchema.HumanoidBoneName.Hips)!.rotation.y =
+      Math.PI
+    vrm.springBoneManager!.reset()
 
-            vrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Hips
-            ).rotation.y = Math.PI
-            vrm.springBoneManager.reset()
-
-            prepareAnimation(vrm)
-
-            console.log(vrm)
-          }
-        )
-      },
-
-      (progress: { loaded: number; total: number }) =>
-        console.log(
-          'Loading model...',
-          100.0 * (progress.loaded / progress.total),
-          '%'
-        ),
-
-      (error: any) => console.error(error)
-    )
-
-    // animation
-    function prepareAnimation (vrm: {
-      scene: Object3D<Event> | AnimationObjectGroup
-      humanoid: {
-        getBoneNode: (arg0: any) => { (): any; new (): any; name: string }
-      }
-      blendShapeProxy: { getBlendShapeTrackName: (arg0: any) => string }
-    }) {
-      currentMixer = new AnimationMixer(vrm.scene)
-
-      const quatA = new Quaternion(0.0, 0.0, 0.0, 1.0)
-      const quatB = new Quaternion(0.0, 0.0, 0.0, 1.0)
-      quatB.setFromEuler(new Euler(0.0, 0.0, 0.25 * Math.PI))
-
-      const armTrack = new QuaternionKeyframeTrack(
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.LeftUpperArm).name +
-          '.quaternion', // name
-        [0.0, 0.5, 1.0], // times
-        [...quatA.toArray(), ...quatB.toArray(), ...quatA.toArray()] // values
-      )
-
-      const blinkTrack = new NumberKeyframeTrack(
-        vrm.blendShapeProxy.getBlendShapeTrackName(
-          VRMSchema.BlendShapePresetName.Blink
-        ), // name
-        [0.0, 0.5, 1.0], // times
-        [0.0, 1.0, 0.0] // values
-      )
-
-      const clip = new AnimationClip('blink', 1.0, [armTrack, blinkTrack])
-      const action = currentMixer.clipAction(clip)
-      action.play()
-    }
-
-    // helpers
-    const gridHelper = new GridHelper(10, 10)
-    scene.add(gridHelper)
-
-    const axesHelper = new AxesHelper(5)
-    scene.add(axesHelper)
+    vrm.humanoid!.setPose(idoljson)
+  
 
     // animate
     const clock = new Clock()
+    const fbxLoader = new FBXLoader()
+    const walkFbx = await fbxLoader.loadAsync(walkingfbx)
+    console.log(walkFbx)
+    const walkClip = mixamoClipToVRMClip(walkFbx.animations[0], vrm, false)
+    console.log(walkClip)
+    walkClip.name = 'walk'
+    const mixer: THREE.AnimationMixer = new AnimationMixer(vrm.scene)
+    const walkFlug = false
 
+    const walk = mixer.clipAction(walkClip).setEffectiveWeight(1.0)
+    walk.clampWhenFinished = true
+
+    const controller: VRMController = new VRMController(vrm, walk)
+    let lastTime = new Date().getTime()
+    // controller.forwardAnimation?.play()
     function animate () {
       requestAnimationFrame(animate)
 
@@ -201,15 +164,180 @@ export const App = defineComponent({
 
       if (currentVrm) {
         currentVrm.update(deltaTime)
+        controller.forwardUpdate()
+        controller.turnUpdate()
+        const v =   Math.sin( Math.PI * clock.elapsedTime );
+        console.log(v);
+        
+        currentVrm.blendShapeProxy!.setValue( VRMSchema.BlendShapePresetName.Joy, 0.5 + 0.5 *v ); 
+        let time = new Date().getTime()
+        if (mixer) mixer.update(time - lastTime)
+        lastTime = time
+        renderer.setAnimationLoop(() => {
+          renderer.render(scene, camera)
+        })
+        if(mixer){
+          mixer.update(clock.getDelta())
+        }
       }
 
-      if (currentMixer) {
-        currentMixer.update(deltaTime)
-      }
-
+      window.addEventListener('keyup', (e) => {
+        switch (e.code) {
+          case 'ArrowUp':
+          case 'KeyW':
+            controller.forwardEnd()
+            break
+          case 'ArrowLeft':
+          case 'KeyA':
+          case 'ArrowRight':
+          case 'KeyD':
+            controller.turnEnd()
+            break
+        }
+      })
+      
+      window.addEventListener('keydown', (e) => {
+        switch (e.code) {
+          case 'ArrowUp':
+          case 'KeyW':
+            controller.forwardBegin()
+            break
+          case 'ArrowLeft':
+          case 'KeyA':
+            controller.turnBegin('left')
+            break
+          case 'ArrowRight':
+          case 'KeyD':
+            controller.turnBegin('right')
+            break
+        }}
+      )
       renderer.render(scene, camera)
     }
 
     animate()
   }
 })
+
+export type Type = (elapsed: number) => VRMPose
+
+export const sayHello: Type = (elapsed) => ({
+  [VRMSchema.HumanoidBoneName.LeftUpperLeg]: {
+    rotation: [0.0, 0.0, -0.1, 1]
+  },
+  [VRMSchema.HumanoidBoneName.LeftUpperArm]: {
+    rotation: new Quaternion()
+      .setFromEuler(
+        new Euler(
+          0,
+          0,
+          cosineRepeation(-Math.PI / 4, Math.PI / 4, Math.PI / 4)(elapsed),
+          'XYZ'
+        )
+      )
+      .toArray() as RawVector4
+  },
+  [VRMSchema.HumanoidBoneName.LeftLowerArm]: {
+    rotation: new Quaternion()
+      .setFromEuler(
+        new Euler(
+          cosineRepeation(0, Math.PI / 1.3)(elapsed),
+          0,
+          cosineRepeation(0, Math.PI / 8)(elapsed),
+          'XYZ'
+        )
+      )
+      .toArray() as RawVector4
+  },
+  [VRMSchema.HumanoidBoneName.RightUpperArm]: {
+    rotation: new Quaternion()
+      .setFromEuler(new Euler(0, 0, -Math.PI / 4, 'XYZ'))
+      .toArray() as RawVector4
+  },
+  [VRMSchema.HumanoidBoneName.RightLowerArm]: {
+    rotation: new Quaternion()
+      .setFromEuler(new Euler(0, 0, -Math.PI / 2.3, 'XYZ'))
+      .toArray() as RawVector4
+  },
+  [VRMSchema.HumanoidBoneName.LeftHand]: {
+    rotation: new Quaternion()
+      .setFromEuler(
+        new Euler(cosineRepeation(-Math.PI / 6, 0, 0)(elapsed), 0, 0, 'XYZ')
+      )
+      .toArray() as RawVector4
+  },
+  [VRMSchema.HumanoidBoneName.LeftShoulder]: {
+    rotation: new Quaternion()
+      .setFromEuler(
+        new Euler(0, 0, cosineRepeation(-Math.PI / 6, 0, 0)(elapsed), 'XYZ')
+      )
+      .toArray() as RawVector4,
+    position: [
+      cosineRepeation(-0.025, 0, 0)(elapsed),
+      cosineRepeation(0, 0.08)(elapsed),
+      0
+    ]
+  },
+  [VRMSchema.HumanoidBoneName.UpperChest]: {
+    position: [cosineRepeation(0, 0.02)(elapsed), 0, 0]
+  },
+  [VRMSchema.HumanoidBoneName.Neck]: {
+    rotation: new Quaternion()
+      .setFromEuler(
+        new Euler(0, 0, cosineRepeation(-Math.PI / 24, 0, 0)(elapsed), 'XYZ')
+      )
+      .toArray() as RawVector4
+  }
+})
+
+export const standOnOneLeg: Type = (elapsed) => ({
+  [VRMSchema.HumanoidBoneName.LeftUpperLeg]: {
+    rotation: new Quaternion()
+      .setFromEuler(new Euler(-Math.PI / 6, 0, 0, 'XYZ'))
+      .toArray() as RawVector4
+  },
+  [VRMSchema.HumanoidBoneName.LeftLowerLeg]: {
+    rotation: new Quaternion()
+      .setFromEuler(
+        new Euler(cosineRepeation(-Math.PI / 2, 0, 0)(elapsed), 0, 0, 'XYZ')
+      )
+      .toArray() as RawVector4
+  },
+  [VRMSchema.HumanoidBoneName.LeftUpperArm]: {
+    rotation: new Quaternion()
+      .setFromEuler(
+        new Euler(
+          0,
+          0,
+          cosineRepeation(0, Math.PI / 15, Math.PI / 24, 1.5)(elapsed),
+          'XYZ'
+        )
+      )
+      .toArray() as RawVector4
+  },
+  [VRMSchema.HumanoidBoneName.RightUpperArm]: {
+    rotation: new Quaternion()
+      .setFromEuler(
+        new Euler(
+          0,
+          0,
+          cosineRepeation(-Math.PI / 15, 0, -Math.PI / 24, 1.5)(elapsed),
+          'XYZ'
+        )
+      )
+      .toArray() as RawVector4
+  }
+})
+export function cosineRepeation (
+  min: number,
+  max: number,
+  start: number = min,
+  frequency = 1, // 2πf
+  increasingInitially = true
+) {
+  const l = (max - min) / 2 // amplitude
+  const k = -1 + (start - min) / l // relative y coordinate
+  const xIntercept = Math.acos(k) * (increasingInitially ? -1 : 1)
+  return (elapsed: number) =>
+    l * Math.cos(frequency * (elapsed - xIntercept)) + min + l
+}

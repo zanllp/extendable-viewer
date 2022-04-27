@@ -7,7 +7,7 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.(bin|jpe?g|png|dds|vrm|glb|gltf)$/,
+        test: /\.(bin|jpe?g|png|dds|vrm|glb|gltf|fbx)$/,
         loader: 'file-loader',
         options: { esModule: false }
       }
