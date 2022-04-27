@@ -1,21 +1,14 @@
 import { defineComponent } from 'vue'
 import './registerServiceWorker'
 import {
-  AnimationClip,
   AnimationMixer,
-  AnimationObjectGroup,
-  AxesHelper,
   Camera,
   Clock,
   DirectionalLight,
   Euler,
-  GridHelper,
   MathUtils,
-  NumberKeyframeTrack,
-  Object3D,
   PerspectiveCamera,
   Quaternion,
-  QuaternionKeyframeTrack,
   Scene,
   Vector3,
   WebGLRenderer
@@ -31,7 +24,6 @@ import { mixamoClipToVRMClip } from './clip'
 import { VRMController } from './controller'
 import idoljson from '../asset/idol.json'
 import walkingfbx from '../asset/walking.fbx'
-
 
 function initSky (scene: Scene, renderer: WebGLRenderer, camera: Camera) {
   // Add Sky
@@ -120,7 +112,6 @@ export const App = defineComponent({
 
     initSky(scene, renderer, camera)
     // gltf and vrm
-    let currentVrm: VRM
     let currentMixer: AnimationMixer | undefined
     const loader = new GLTFLoader()
     loader.crossOrigin = 'anonymous'
@@ -131,14 +122,13 @@ export const App = defineComponent({
 
     scene.add(vrm.scene)
     vrm.scene.rotation.y += Math.PI
-    currentVrm = vrm
+    const currentVrm = vrm
 
     vrm.humanoid!.getBoneNode(VRMSchema.HumanoidBoneName.Hips)!.rotation.y =
       Math.PI
     vrm.springBoneManager!.reset()
 
     vrm.humanoid!.setPose(idoljson)
-  
 
     // animate
     const clock = new Clock()
@@ -166,17 +156,17 @@ export const App = defineComponent({
         currentVrm.update(deltaTime)
         controller.forwardUpdate()
         controller.turnUpdate()
-        const v =   Math.sin( Math.PI * clock.elapsedTime );
-        console.log(v);
-        
-        currentVrm.blendShapeProxy!.setValue( VRMSchema.BlendShapePresetName.Joy, 0.5 + 0.5 *v ); 
-        let time = new Date().getTime()
+        const v = Math.sin(Math.PI * clock.elapsedTime)
+        console.log(v)
+
+        currentVrm.blendShapeProxy!.setValue(VRMSchema.BlendShapePresetName.Joy, 0.5 + 0.5 * v)
+        const time = new Date().getTime()
         if (mixer) mixer.update(time - lastTime)
         lastTime = time
         renderer.setAnimationLoop(() => {
           renderer.render(scene, camera)
         })
-        if(mixer){
+        if (mixer) {
           mixer.update(clock.getDelta())
         }
       }
@@ -195,7 +185,7 @@ export const App = defineComponent({
             break
         }
       })
-      
+
       window.addEventListener('keydown', (e) => {
         switch (e.code) {
           case 'ArrowUp':
@@ -210,7 +200,8 @@ export const App = defineComponent({
           case 'KeyD':
             controller.turnBegin('right')
             break
-        }}
+        }
+      }
       )
       renderer.render(scene, camera)
     }

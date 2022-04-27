@@ -185,7 +185,7 @@ function createClip (clip: THREE.AnimationClip, vrm: VRM, isRootMotion = true, b
     bones
   )
 
-  resClip.tracks.some((track) => {
+  resClip.tracks.forEach((track) => {
     track.name = track.name.replace(
       /^\.bones\[([^\]]+)\].(position|quaternion|scale)$/,
       '$1.$2'
