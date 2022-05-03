@@ -883,6 +883,7 @@ export const allPose = {
   kira,
   stand2: idolJson
 }
+export type PoseType = keyof typeof allPose
 export const getPose = (targetName: keyof typeof allPose) => {
   const pose = allPose[targetName]
   return typeof pose === 'function' ? pose : () => pose

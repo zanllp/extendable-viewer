@@ -1,0 +1,26 @@
+.control-panel {
+  color: white;
+  h3 {
+    &:not(:first-child) {
+      margin-top: 8px;
+    }
+    color: inherit;
+  }
+  .form-item {
+    margin-bottom: 0;
+    border-bottom: 1px solid #434343;
+    color: white;
+    .select-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin:4px 0 ;
+
+      svg {
+        margin-left: 4px;
+        color: white;
+        cursor: pointer;
+      }
+    }
+  }
+}
