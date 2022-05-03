@@ -10,21 +10,21 @@ import {
   WebGLRenderer
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { VRM, VRMSchema, VRMUtils } from '@pixiv/three-vrm'
+import { VRM, VRMUtils } from '@pixiv/three-vrm'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Sky } from 'three/examples/jsm/objects/Sky'
-import { GUI } from 'dat.gui'
 import gltf from '../../asset/vrm/girl.vrm'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { mixamoClipToVRMClip } from '../vrm/clip'
 import { VRMController } from '../vrm/controller'
 // import walkingfbx from '../../asset/np.fbx'
 import { dumpObject } from '../util'
-import { allPose, getPose } from '../vrm/pose'
-import { blendShapes } from '@/vrm/blendshape'
+import { getPose } from '../vrm/pose'
+import { useSkyboxStore } from '@/store/skybox'
+import { useAnimationStore } from '@/store/animation'
 
-export const main = async () => {
-  const { scene, renderer, controls, camera, clock } = init()
+export const setup3d = async (canvas: HTMLCanvasElement) => {
+  const { scene, renderer, controls, camera, clock } = init(canvas)
   const loader = new GLTFLoader()
   loader.crossOrigin = 'anonymous'
   const gltfmodel = await loader.loadAsync(gltf)
@@ -32,8 +32,7 @@ export const main = async () => {
   VRMUtils.removeUnnecessaryVertices(gltfmodel.scene)
   VRMUtils.removeUnnecessaryJoints(gltfmodel.scene)
   const vrm = await VRM.from(gltfmodel)
-  initBlendShapeController(vrm, clock)
-  initPoseController(vrm, clock)
+  initBlendShapeAndPoseWatch(vrm, clock)
   listenCameraPosKey(camera)
 
   scene.add(vrm.scene)
@@ -49,33 +48,31 @@ export const main = async () => {
     renderer.render(scene, camera)
   }
   render()
+  return {
+    renderer,
+    camera
+  }
   // animate
   // await initAnimation(vrm, renderer, clock, currentVrm, controls, scene, camera)
   // controls.addEventListener('change', requestRenderIfNotRequested)
 }
 
-function initSkyboxController (scene: Scene, renderer: WebGLRenderer, camera: Camera) {
+function initSkyboxController (
+  scene: Scene,
+  renderer: WebGLRenderer,
+  camera: Camera
+) {
   // Add Sky
   const sky = new Sky()
   sky.scale.setScalar(450000)
   scene.add(sky)
 
   const sun = new Vector3()
-
-  /// GUI
-
-  const effectController = {
-    turbidity: 10,
-    rayleigh: 3,
-    mieCoefficient: 0.005,
-    mieDirectionalG: 0.7,
-    elevation: 2,
-    azimuth: 180,
-    exposure: renderer.toneMappingExposure,
-    blendShape: VRMSchema.BlendShapePresetName.Fun
-  }
-
+  const skybox = useSkyboxStore()
+  skybox.effect.exposure = renderer.toneMappingExposure
+  skybox.$subscribe(guiChanged)
   function guiChanged () {
+    const effectController = skybox.effect
     const uniforms = sky.material.uniforms
     uniforms.turbidity.value = effectController.turbidity
     uniforms.rayleigh.value = effectController.rayleigh
@@ -92,46 +89,26 @@ function initSkyboxController (scene: Scene, renderer: WebGLRenderer, camera: Ca
     renderer.toneMappingExposure = effectController.exposure
     renderer.render(scene, camera)
   }
-
-  const gui = new GUI()
-
-  gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged)
-  gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged)
-  gui
-    .add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001)
-    .onChange(guiChanged)
-  gui
-    .add(effectController, 'mieDirectionalG', 0.0, 1, 0.001)
-    .onChange(guiChanged)
-  gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged)
-  gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged)
-  gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged)
   guiChanged()
 }
 
-export const initBlendShapeController = (vrm: VRM, clock: Clock) => {
-  const unknown = VRMSchema.BlendShapePresetName.Unknown
-  const store = {
-    blendShape: VRMSchema.BlendShapePresetName.Joy,
-    blendShape2: unknown
-  }
-
-  const gui = new GUI()
-  const availableBlendShapes = blendShapes.filter(key => key in (vrm.blendShapeProxy?.blendShapePresetMap ?? {}))
-  availableBlendShapes.push(unknown)
-  const onchange = () => {
-    availableBlendShapes.forEach(blendshape => {
+export const initBlendShapeAndPoseWatch = (vrm: VRM, clock: Clock) => {
+  const animation = useAnimationStore()
+  animation.vrm = vrm
+  vrm.humanoid?.setPose(getPose(animation.pose)(0))
+  animation.$subscribe(() => {
+    vrm.humanoid?.resetPose()
+    animation.availableBlendShapes.forEach((blendshape) => {
       vrm.blendShapeProxy?.setValue(blendshape, 0)
     })
-  }
-  gui.add(store, 'blendShape', availableBlendShapes).onChange(onchange)
-  gui.add(store, 'blendShape2', availableBlendShapes).onChange(onchange)
+  })
   const render = () => {
     requestAnimationFrame(render)
-    const v = Math.sin(Math.PI * clock.elapsedTime) * 0.5 + 0.5;
-    [store.blendShape, store.blendShape2]
-      .filter(v => v !== unknown)
-      .forEach(item => vrm.blendShapeProxy?.setValue(item, v))
+    const v = Math.sin(Math.PI * clock.elapsedTime) * 0.5 + 0.5
+    vrm.humanoid?.setPose(getPose(animation.pose)(clock.elapsedTime))
+    animation.selectedBlendshape
+      .filter((v) => v !== animation.unknown)
+      .forEach((item) => vrm.blendShapeProxy?.setValue(item, v))
   }
   render()
 }
@@ -175,22 +152,15 @@ export const listenCameraPosKey = (camera: PerspectiveCamera) => {
   render()
 }
 
-export const initPoseController = (vrm: VRM, clock: Clock) => {
-  const store: { pose: keyof typeof allPose } = {
-    pose: 'kira'
-  }
-
-  vrm.humanoid?.setPose(getPose(store.pose)(0))
-  const gui = new GUI()
-  gui.add(store, 'pose', Object.keys(allPose)).onChange(() => vrm.humanoid?.resetPose())
-  const render = () => {
-    requestAnimationFrame(render)
-    vrm.humanoid?.setPose(getPose(store.pose)(clock.elapsedTime))
-  }
-  render()
-}
-
-async function initAnimation (vrm: VRM, renderer: WebGLRenderer, clock: Clock, currentVrm: VRM, controls: OrbitControls, scene: Scene, camera: PerspectiveCamera) {
+async function initAnimation (
+  vrm: VRM,
+  renderer: WebGLRenderer,
+  clock: Clock,
+  currentVrm: VRM,
+  controls: OrbitControls,
+  scene: Scene,
+  camera: PerspectiveCamera
+) {
   const mixer: AnimationMixer = await initFbxAnimation(vrm)
 
   let renderRequested = false
@@ -224,7 +194,7 @@ async function initAnimation (vrm: VRM, renderer: WebGLRenderer, clock: Clock, c
 
 async function initFbxAnimation (vrm: VRM) {
   const fbxLoader = new FBXLoader()
-  const walkFbx = await fbxLoader.loadAsync('')// walkingfbx)
+  const walkFbx = await fbxLoader.loadAsync('') // walkingfbx)
   const walkClip = mixamoClipToVRMClip(walkFbx.animations[0], vrm, false)
   walkClip.name = 'walk'
   const mixer: AnimationMixer = new AnimationMixer(vrm.scene)
@@ -234,12 +204,10 @@ async function initFbxAnimation (vrm: VRM) {
   return mixer
 }
 
-function init () {
-  const renderer = new WebGLRenderer()
+function init (canvas: HTMLCanvasElement) {
+  const renderer = new WebGLRenderer({ canvas })
   renderer.setSize(window.innerWidth, window.innerHeight)
   renderer.setPixelRatio(window.devicePixelRatio)
-  document.body.appendChild(renderer.domElement)
-
   // camera
   const camera = new PerspectiveCamera(
     30.0,
@@ -249,13 +217,6 @@ function init () {
   )
 
   camera.position.set(0.0, 1.0, 4)
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight
-    camera.updateProjectionMatrix()
-
-    renderer.setSize(window.innerWidth, window.innerHeight)
-  })
 
   // camera controls
   const controls = new OrbitControls(camera, renderer.domElement)
