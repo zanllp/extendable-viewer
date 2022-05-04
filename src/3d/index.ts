@@ -18,7 +18,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { mixamoClipToVRMClip } from '../vrm/clip'
 import { VRMController } from '../vrm/controller'
 // import walkingfbx from '../../asset/np.fbx'
-import { dumpObject } from '../util'
+// import { dumpObject } from '../util'
 import { getPose } from '../vrm/pose'
 import { useSkyboxStore } from '@/store/skybox'
 import { useAnimationStore } from '@/store/animation'
@@ -28,7 +28,7 @@ export const setup3d = async (canvas: HTMLCanvasElement) => {
   const loader = new GLTFLoader()
   loader.crossOrigin = 'anonymous'
   const gltfmodel = await loader.loadAsync(gltf)
-  console.log(dumpObject(gltfmodel.scene).join('\n'))
+  // console.log(dumpObject(gltfmodel.scene).join('\n'))
   VRMUtils.removeUnnecessaryVertices(gltfmodel.scene)
   VRMUtils.removeUnnecessaryJoints(gltfmodel.scene)
   const vrm = await VRM.from(gltfmodel)
@@ -38,7 +38,7 @@ export const setup3d = async (canvas: HTMLCanvasElement) => {
   scene.add(vrm.scene)
   vrm.scene.rotation.y += Math.PI
   const currentVrm = vrm
-  console.log(currentVrm)
+  // console.log(currentVrm)
   vrm.springBoneManager?.reset()
   const render = () => {
     const deltaTime = clock.getDelta()
@@ -206,8 +206,6 @@ async function initFbxAnimation (vrm: VRM) {
 
 function init (canvas: HTMLCanvasElement) {
   const renderer = new WebGLRenderer({ canvas })
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.setPixelRatio(window.devicePixelRatio)
   // camera
   const camera = new PerspectiveCamera(
     30.0,

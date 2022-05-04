@@ -1,29 +1,55 @@
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import { setup3d } from './3d'
-import { ok } from 'assert'
 import styles from './app.module.scss'
 import { ControlPanel } from './ui/ControlPanel'
+import { BottomTabPanel } from './ui/BottomTabPanel'
+import { AppLifecycle, events } from './util'
+import { SplitView, truthy, useDomRect } from 'vue3-ts-util-lite'
+import { debounce } from 'lodash'
 
 export const App = defineComponent({
   setup () {
     const canvas = ref<HTMLCanvasElement>()
+    const canvasWrap = ref<HTMLDivElement>()
+    const canvasRect = useDomRect(canvasWrap)
     onMounted(async () => {
-      const ele = canvas.value
-      ok(ele)
+      events.emit(AppLifecycle.init)
+      const ele = truthy(canvas.value)
       const { renderer, camera } = await setup3d(ele)
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight
-        camera.updateProjectionMatrix()
-        renderer.setSize(window.innerWidth, window.innerHeight)
-      })
+      watch(
+        () => canvasRect.rect.value,
+        debounce((rect) => {
+          if (rect) {
+            renderer.setSize(rect.width, rect.height)
+            renderer.setPixelRatio(window.devicePixelRatio)
+            camera.aspect = rect.width / rect.height
+            camera.updateProjectionMatrix()
+          }
+        }, 300),
+        { immediate: true }
+      )
     })
-
     return () => (
-      <div>
+      <div class={styles.container}>
         <div class={styles['left-fixed-area']}>
           <ControlPanel />
         </div>
-        <canvas ref={canvas}></canvas>
+        <SplitView
+          direction="vertical"
+          percent={70}
+          v-slots={{
+            left: (
+              <div ref={canvasWrap} style={{ height: '100%' }}>
+                <canvas class={styles['main-canvas']} ref={canvas}></canvas>
+              </div>
+            ),
+            right: (
+              <div class={styles['bottom-Tab-panel']}>
+                <BottomTabPanel></BottomTabPanel>
+              </div>
+            )
+          }}
+        ></SplitView>
       </div>
     )
   }

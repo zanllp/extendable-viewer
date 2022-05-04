@@ -13,6 +13,7 @@ const config = {
       }
     ]
   }
+
 }
 module.exports = defineConfig({
   transpileDependencies: true,

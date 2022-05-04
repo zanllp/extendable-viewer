@@ -7,7 +7,7 @@ import 'ant-design-vue/dist/antd.variable.min.css'
 import { ConfigProvider } from 'ant-design-vue'
 ConfigProvider.config({
   theme: {
-    primaryColor: '#1453ad'
+    primaryColor: '#e6f7ff'
   }
 })
 createApp(App).use(createPinia()).mount('#app')

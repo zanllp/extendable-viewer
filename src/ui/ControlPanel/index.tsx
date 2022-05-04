@@ -51,7 +51,7 @@ export const ControlPanel = defineComponent({
             </FormItem>
           ))}
           <Button
-            icon={<PlusOutlined> </PlusOutlined>}
+            icon={<PlusOutlined/>}
             onClick={() => animation.selectedBlendshape.push(animation.unknown)}
           >
             Add new item
