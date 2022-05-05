@@ -12,8 +12,10 @@ const config = {
         options: { esModule: false }
       }
     ]
+  },
+  watchOptions: {
+    ignored: ['/node_modules/(?!vue3-ts)/']
   }
-
 }
 module.exports = defineConfig({
   transpileDependencies: true,

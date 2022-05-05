@@ -31,25 +31,30 @@ export const App = defineComponent({
     })
     return () => (
       <div class={styles.container}>
-        <div class={styles['left-fixed-area']}>
-          <ControlPanel />
-        </div>
-        <SplitView
-          direction="vertical"
-          percent={70}
-          v-slots={{
-            left: (
-              <div ref={canvasWrap} style={{ height: '100%' }}>
-                <canvas class={styles['main-canvas']} ref={canvas}></canvas>
-              </div>
-            ),
+        <SplitView direction="horizontal" percent={15}>
+          {{
+            left: <ControlPanel class={styles['main-left-bar']} />,
             right: (
-              <div class={styles['bottom-Tab-panel']}>
-                <BottomTabPanel></BottomTabPanel>
-              </div>
+              <SplitView direction="vertical" percent={70}>
+                {{
+                  left: (
+                    <div ref={canvasWrap} style={{ height: '100%' }}>
+                      <canvas
+                        class={styles['main-canvas']}
+                        ref={canvas}
+                      ></canvas>
+                    </div>
+                  ),
+                  right: (
+                    <div class={styles['bottom-Tab-panel']}>
+                      <BottomTabPanel></BottomTabPanel>
+                    </div>
+                  )
+                }}
+              </SplitView>
             )
           }}
-        ></SplitView>
+        </SplitView>
       </div>
     )
   }

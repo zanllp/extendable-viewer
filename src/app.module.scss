@@ -1,8 +1,9 @@
-.left-fixed-area {
-  position: fixed;
-  width: 200px;
-  background: #262626;
+.main-left-bar {
+  background-color: #3d3939;
+  height: 100%;
+  overflow: auto;
   padding: 8px;
+  width: 100%;
 }
 
 .main-canvas {
