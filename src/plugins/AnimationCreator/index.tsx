@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { identity } from 'lodash'
 import { defineComponent, reactive, ref, watch } from 'vue'
 import { deepComputed, truthy } from 'vue3-ts-util-lite'
