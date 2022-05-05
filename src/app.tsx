@@ -1,4 +1,4 @@
-import { defineComponent, onMounted, ref, watch } from 'vue'
+import { defineComponent, onMounted, provide, ref, watch } from 'vue'
 import { setup3d } from './3d'
 import styles from './app.module.scss'
 import { ControlPanel } from './ui/ControlPanel'
@@ -6,12 +6,15 @@ import { BottomTabPanel } from './ui/BottomTabPanel'
 import { AppLifecycle, events } from './util'
 import { SplitView, truthy, useDomRect } from 'vue3-ts-util-lite'
 import { debounce } from 'lodash'
+import { PluginController } from './plugins/pluginController'
 
 export const App = defineComponent({
   setup () {
     const canvas = ref<HTMLCanvasElement>()
     const canvasWrap = ref<HTMLDivElement>()
     const canvasRect = useDomRect(canvasWrap)
+    const pluginController = new PluginController()
+    provide(PluginController.InjectKey, pluginController)
     onMounted(async () => {
       events.emit(AppLifecycle.init)
       const ele = truthy(canvas.value)

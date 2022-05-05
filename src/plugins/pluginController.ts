@@ -1,4 +1,5 @@
 import { useAnimationStore } from '@/store/animation'
+import { videoRecordFromCanvas } from '@/videoRecorder'
 import { allPose } from '@/vrm/pose'
 import { inject, Ref } from 'vue'
 
@@ -19,6 +20,10 @@ export class PluginController {
 
   getBlendShapes () {
     return this.blendShapes
+  }
+
+  getVideoRecorder () {
+    return videoRecordFromCanvas()
   }
 
   static readonly InjectKey = Symbol('PluginController-inject')
