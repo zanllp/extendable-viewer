@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { identity } from 'lodash'
 import { defineComponent, ref, withModifiers } from 'vue'
-import { deepComputed, SplitView, truthy } from 'vue3-ts-util-lite'
+import { deepComputed, delay, SplitView, truthy } from 'vue3-ts-util-lite'
 import Draggable from 'vuedraggable'
 import type { Plugin } from '../'
 import { PluginController } from '../pluginController'
 import styles from './index.module.scss'
-import { HeartOutlined, PlaySquareTwoTone } from '@ant-design/icons-vue'
+import { HeartOutlined, HeartFilled, PlaySquareTwoTone, VideoCameraTwoTone } from '@ant-design/icons-vue'
 import { Form, FormItem, Input } from 'ant-design-vue'
 import './custom-antd-form.scss'
 
@@ -23,10 +23,24 @@ const ControlPanel = defineComponent({
     }
     const animationKeyFrame = ref<KeyFrame[]>([
       { pose: 'ya' },
-      { pose: 'stand' },
-      { pose: 'kira' }
+      { pose: 'kira' },
+      { pose: 'standOnOneLeg' }
     ])
     const selectedKeyFrame = ref<KeyFrame>()
+    const currPoseIdx = ref(-1)
+    const play = async (record = false) => {
+      const actionController = controller.getActionController()
+      const recorder = record && controller.getVideoRecorder()
+      for (const iter of animationKeyFrame.value) {
+        actionController.setPose(iter.pose)
+        currPoseIdx.value++
+        await delay(iter.duration ?? 1000)
+      }
+      actionController.setPose('stand')
+      actionController.free()
+      recorder && recorder.mediaRecorder.stop()
+      currPoseIdx.value = -1
+    }
     return () => (
       <SplitView style={{ height: '100%' }} percent={70}>
         {{
@@ -44,7 +58,7 @@ const ControlPanel = defineComponent({
                   group={{ name: 'people', put: true }}
                 >
                   {{
-                    item: ({ element }: { element: KeyFrame }) => (
+                    item: ({ element, index }: { element: KeyFrame, index: number }) => (
                       <div
                         class={[
                           styles['animation-item'],
@@ -57,20 +71,26 @@ const ControlPanel = defineComponent({
                         }}
                       >
                         <div>{element.pose}</div>
-                        <HeartOutlined
-                          class={styles.icon}
-                          twoToneColor="#52c41a"
-                        />
+                        {currPoseIdx.value === index ? <HeartFilled class={styles.icon} /> : <HeartOutlined class={styles.icon} /> }
                       </div>
                     )
                   }}
                 </Draggable>
-                <div class={styles.record}>
-                  <span> Record & Replay</span>
-                  <PlaySquareTwoTone
-                    class={styles.icon}
-                    twoToneColor="#73d13d"
-                  ></PlaySquareTwoTone>
+                <div class={styles['btn-group']}>
+                  <div class={styles.record} onClick={() => play()}>
+                    <span> Play</span>
+                    <PlaySquareTwoTone
+                      class={styles.icon}
+                      twoToneColor="#73d13d"
+                    ></PlaySquareTwoTone>
+                  </div>
+                  <div class={styles.record} onClick={() => play(true)}>
+                    <span> Record & play</span>
+                    <VideoCameraTwoTone
+                      class={styles.icon}
+                      twoToneColor="#13c2c2"
+                    ></VideoCameraTwoTone>
+                  </div>
                 </div>
               </div>
               <h4 class={styles.title}>Source pose</h4>
@@ -91,7 +111,7 @@ const ControlPanel = defineComponent({
             </div>
           ),
           right: selectedKeyFrame.value
-            ?
+            ? (
             <div class={[styles['keyframe-editform'], 'custom-antd-form']}>
               <Form
                 labelAlign="left"
@@ -107,7 +127,10 @@ const ControlPanel = defineComponent({
                 </FormItem>
               </Form>
             </div>
-              : ''
+              )
+            : (
+                ''
+              )
         }}
       </SplitView>
     )
