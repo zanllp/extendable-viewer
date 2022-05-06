@@ -7720,10 +7720,10 @@ vue-types@^3.0.0:
   dependencies:
     is-plain-object "3.0.1"
 
-vue3-ts-util-lite@^0.3.33:
-  version "0.3.33"
-  resolved "https://registry.yarnpkg.com/vue3-ts-util-lite/-/vue3-ts-util-lite-0.3.33.tgz#3047af6d293c54001adfc8d57f95552f97185127"
-  integrity sha512-amH8qYmP9yrVD/lPZUkH4CD54n/C8sDfHhsTjDqaJxg5/zaEIIDWqKM91bHruwcQdky6CtqVb0yzu8yWC0nYbw==
+vue3-ts-util-lite@^0.3.34:
+  version "0.3.34"
+  resolved "https://registry.yarnpkg.com/vue3-ts-util-lite/-/vue3-ts-util-lite-0.3.34.tgz#fa8f88a5507a6b7716e991c299c6528f0099b07a"
+  integrity sha512-CrablAQtk4QHhfJqRyCeCI3XwMldSULONXBvAn2/01z9127wRdtht1frI6w5O23+YxtQIFPahu0qn0g019uTzw==
   dependencies:
     lodash "^4.17.21"
     moment "^2.29.1"

@@ -1,0 +1,14 @@
+.custom-antd-form {
+  .ant-form-item {
+    color: white;
+    margin: 2px;
+    .ant-form-item-label>label {
+      color: white;
+    }
+    .ant-input {
+      background-color: #595959;
+      color: white;
+      border: 1px solid #262626;
+    }
+  }
+}
