@@ -22,6 +22,7 @@ import { VRMController } from '../vrm/controller'
 import { getPose } from '../vrm/pose'
 import { useSkyboxStore } from '@/store/skybox'
 import { useAnimationStore } from '@/store/animation'
+import { useCameraStore } from '@/store/camera'
 
 export const setup3d = async (canvas: HTMLCanvasElement) => {
   const { scene, renderer, controls, camera, clock } = init(canvas)
@@ -33,7 +34,7 @@ export const setup3d = async (canvas: HTMLCanvasElement) => {
   VRMUtils.removeUnnecessaryJoints(gltfmodel.scene)
   const vrm = await VRM.from(gltfmodel)
   initBlendShapeAndPoseWatch(vrm, clock)
-  listenCameraPosKey(camera)
+  listenCameraPosKey(camera, controls)
 
   scene.add(vrm.scene)
   vrm.scene.rotation.y += Math.PI
@@ -43,7 +44,7 @@ export const setup3d = async (canvas: HTMLCanvasElement) => {
   const render = () => {
     const deltaTime = clock.getDelta()
     requestAnimationFrame(render)
-    controls.update()
+    // /&controls.update()
     currentVrm.update(deltaTime)
     renderer.render(scene, camera)
   }
@@ -112,7 +113,10 @@ export const initBlendShapeAndPoseWatch = (vrm: VRM, clock: Clock) => {
   }
   render()
 }
-export const listenCameraPosKey = (camera: PerspectiveCamera) => {
+export const listenCameraPosKey = (
+  camera: PerspectiveCamera,
+  controls?: OrbitControls | null
+) => {
   let isUp = false
   let isDown = false
   window.addEventListener('keydown', (e) => {
@@ -139,15 +143,26 @@ export const listenCameraPosKey = (camera: PerspectiveCamera) => {
         break
     }
   })
+  const cameraStore = useCameraStore()
   const render = () => {
     requestAnimationFrame(render)
     const step = 0.03
-    if (isDown) {
-      camera.position.y -= step
+    controls!.enabled = false
+    const { x, y, z, rotate } = cameraStore
+    camera.rotation.y += MathUtils.degToRad(rotate)
+
+    console.log(MathUtils.degToRad(rotate), camera.rotation.y)
+    camera.position.add(new Vector3(x, y, z))
+    // controls.target.set(x, y, z)
+    controls!.enabled = true
+    if (isDown && controls) {
+      controls.target.y -= step
     }
-    if (isUp) {
-      camera.position.y += step
+    if (isUp && controls) {
+      controls.target.y += step
     }
+    rotate || controls?.update() // when update called ,the camera position will return to last state, ref https://stackoverflow.com/questions/50633960/three-js-orbitcontrols-how-update-rotation-camera
+    camera.updateProjectionMatrix()
   }
   render()
 }
@@ -213,15 +228,11 @@ function init (canvas: HTMLCanvasElement) {
     0.1,
     20.0
   )
-
+  console.log(camera)
   camera.position.set(0.0, 1.0, 4)
 
   // camera controls
-  const controls = new OrbitControls(camera, renderer.domElement)
-  controls.enableDamping = true
-  controls.target.set(0.0, 1, 0.0)
-  controls.update()
-
+  const controls = newFunction()
   // scene
   const scene = new Scene()
 
@@ -233,4 +244,12 @@ function init (canvas: HTMLCanvasElement) {
   initSkyboxController(scene, renderer, camera)
   const clock = new Clock()
   return { scene, renderer, controls, camera, clock }
+
+  function newFunction () {
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.enableDamping = true
+    controls.target.set(0.0, 1, 0.0)
+    controls.update()
+    return controls
+  }
 }

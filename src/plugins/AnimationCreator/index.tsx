@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { identity } from 'lodash'
 import { defineComponent, ref, withModifiers } from 'vue'
-import { deepComputed, delay, SplitView, truthy } from 'vue3-ts-util-lite'
+import { deepComputed, delay, ok, SplitView, truthy } from 'vue3-ts-util-lite'
 import Draggable from 'vuedraggable'
 import type { Plugin } from '../'
-import { PluginController } from '../pluginController'
+import { CameraParams, PluginController } from '../pluginController'
 import styles from './index.module.scss'
-import { HeartOutlined, HeartFilled, PlaySquareTwoTone, VideoCameraTwoTone } from '@ant-design/icons-vue'
+import {
+  HeartOutlined,
+  HeartFilled,
+  PlaySquareTwoTone,
+  VideoCameraTwoTone
+} from '@ant-design/icons-vue'
 import { Form, FormItem, Input } from 'ant-design-vue'
 import './custom-antd-form.scss'
 
@@ -17,7 +22,7 @@ const ControlPanel = defineComponent({
       get: () => ({ v: controller.getAllPose().map((v) => ({ pose: v })) }),
       set: identity
     })
-    interface KeyFrame {
+    interface KeyFrame extends Partial<CameraParams> {
       pose: string
       duration?: number
     }
@@ -26,28 +31,47 @@ const ControlPanel = defineComponent({
       { pose: 'kira' },
       { pose: 'standOnOneLeg' }
     ])
-    const selectedKeyFrame = ref<KeyFrame>()
+    const selectedKeyFrame = ref<KeyFrame | null>(animationKeyFrame.value[0])
     const currPoseIdx = ref(-1)
+    const toSafeNum = (e?: string | number) => {
+      switch (typeof e) {
+        case 'undefined':
+          return 0
+        case 'number':
+          return e
+        case 'string':
+          return +e
+      }
+      ok(false)
+    }
     const play = async (record = false) => {
       const actionController = controller.getActionController()
-      const recorder = record && controller.getVideoRecorder()
+      const recorder = record ? controller.getVideoRecorder() : null
       for (const iter of animationKeyFrame.value) {
         actionController.setPose(iter.pose)
+        actionController.updateCamera((p) => {
+          return {
+            x: p.x + toSafeNum(iter.x),
+            y: p.y + toSafeNum(iter.y),
+            z: p.z + toSafeNum(iter.z),
+            rotate: p.rotate + toSafeNum(iter.rotate)
+          }
+        })
         currPoseIdx.value++
         await delay(iter.duration ?? 1000)
       }
       actionController.setPose('stand')
       actionController.free()
-      recorder && recorder.mediaRecorder.stop()
+      recorder?.mediaRecorder.stop()
       currPoseIdx.value = -1
     }
     return () => (
-      <SplitView style={{ height: '100%' }} percent={70}>
+      <SplitView style={{ height: '100%' }} percent={60}>
         {{
           left: (
             <div
               style={{ marginRight: '16px' }}
-              onClick={() => (selectedKeyFrame.value = undefined)}
+              onClick={() => (selectedKeyFrame.value = null)}
             >
               <h4 class={[styles.title, styles.axis]}>Track</h4>
               <div class={styles['track-container']}>
@@ -58,7 +82,13 @@ const ControlPanel = defineComponent({
                   group={{ name: 'people', put: true }}
                 >
                   {{
-                    item: ({ element, index }: { element: KeyFrame, index: number }) => (
+                    item: ({
+                      element,
+                      index
+                    }: {
+                      element: KeyFrame
+                      index: number
+                    }) => (
                       <div
                         class={[
                           styles['animation-item'],
@@ -71,7 +101,13 @@ const ControlPanel = defineComponent({
                         }}
                       >
                         <div>{element.pose}</div>
-                        {currPoseIdx.value === index ? <HeartFilled class={styles.icon} /> : <HeartOutlined class={styles.icon} /> }
+                        {currPoseIdx.value === index
+                          ? (
+                          <HeartFilled class={styles.icon} />
+                            )
+                          : (
+                          <HeartOutlined class={styles.icon} />
+                            )}
                       </div>
                     )
                   }}
@@ -119,9 +155,33 @@ const ControlPanel = defineComponent({
                 wrapperCol={{ span: 16 }}
                 colon={false}
               >
-                <FormItem label="duration(ms)">
+                <FormItem label="duration (ms)">
                   <Input
                     v-model:value={selectedKeyFrame.value.duration}
+                    type="number"
+                  ></Input>
+                </FormItem>
+                <FormItem label="rotate (incr deg/60hz)">
+                  <Input
+                    v-model:value={selectedKeyFrame.value.rotate}
+                    type="number"
+                  ></Input>
+                </FormItem>
+                <FormItem label="x (incr/60hz)">
+                  <Input
+                    v-model:value={selectedKeyFrame.value.x}
+                    type="number"
+                  ></Input>
+                </FormItem>
+                <FormItem label="y (incr/60hz)">
+                  <Input
+                    v-model:value={selectedKeyFrame.value.y}
+                    type="number"
+                  ></Input>
+                </FormItem>
+                <FormItem label="z (incr/60hz)">
+                  <Input
+                    v-model:value={selectedKeyFrame.value.z}
                     type="number"
                   ></Input>
                 </FormItem>
