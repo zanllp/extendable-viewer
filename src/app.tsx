@@ -4,7 +4,7 @@ import styles from './app.module.scss'
 import { ControlPanel } from './ui/ControlPanel'
 import { BottomTabPanel } from './ui/BottomTabPanel'
 import { AppLifecycle, events } from './util'
-import { SplitView, truthy, useDomRect } from 'vue3-ts-util-lite'
+import { SplitView, truthy, useDomRect } from 'vue3-ts-util'
 import { debounce } from 'lodash'
 import { PluginController } from './plugins/pluginController'
 
@@ -59,6 +59,7 @@ export const App = defineComponent({
           }}
         </SplitView>
       </div>
+
     )
   }
 })

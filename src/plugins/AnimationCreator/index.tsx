@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { identity } from 'lodash'
 import { defineComponent, ref, withModifiers } from 'vue'
-import { deepComputed, delay, ok, SplitView, truthy } from 'vue3-ts-util-lite'
+import { deepComputed, delay, ok, SplitView, truthy } from 'vue3-ts-util'
 import Draggable from 'vuedraggable'
 import type { Plugin } from '../'
 import { CameraParams, PluginController } from '../pluginController'
